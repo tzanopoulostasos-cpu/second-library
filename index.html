@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Βιβλιοθήκη - Δωρεάν Λήψη Βιβλίων</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+           
+            color: #e0e0e0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            font-family: 'Georgia', serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(30, 30, 46, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid #3a3a5d;
+        }
+        h1 {
+            text-align: center;
+            color: #f0e6d2;
+            margin-bottom: 10px;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .subtitle {
+            text-align: center;
+            color: #b8b8b8;
+            margin-bottom: 50px;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+        .library-viewport {
+            position: relative;
+            overflow: hidden;
+            margin: 60px 0;
+            padding: 20px 0 40px 0;
+            background: #0f0f1a;
+            border-radius: 12px;
+            border: 1px solid #2a2a40;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
+        }
+        .shelves-track {
+            display: flex;
+            transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* ΑΠΛΟ ΡΑΦΙ */
+        .shelf-unit {
+            min-width: 100%;
+            position: relative;
+            padding: 0 40px;
+        }
+        .shelf-board-top {
+            background: linear-gradient(to bottom, #A0522D, #8B4513, #654321);
+            height: 22px;
+            border-radius: 4px 4px 0 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+            border-top: 1px solid #D2691E;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* ΠΛΑΤΦΟΡΜΑ ΒΙΒΛΙΩΝ */
+        .books-row-container {
+            background: rgba(139, 69, 19, 0.05);
+            padding: 20px 15px 0 15px;
+            margin: 0;
+            position: relative;
+            min-height: 240px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+       .books-row {
+    display: flex;
+    justify-content: space-between; /* ή space-around */
+    width: 100%;
+    align-items: flex-end;
+    padding-bottom: 5px;
+    padding: 0 2%; /* Προσθήκη padding στα πλάγια */
+}
+
+.book {
+    flex: 0 0 calc(16.666% - 20px); /* 6 βιβλία - 20px gap */
+    max-width: 200px;
+    min-width: 110px;
+}
+        
+        .shelf-board-middle {
+            background: linear-gradient(to bottom, #8B4513, #A0522D, #8B4513);
+            height: 18px;
+            width: 98%;
+            margin: 0 auto;
+            border-radius: 3px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.5),
+                        inset 0 1px 2px rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 4;
+        }
+        
+        .shelf-board-bottom {
+            background: linear-gradient(to bottom, #5D4037, #654321, #8B4513, #A0522D);
+            height: 24px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: inset 0 -2px 4px rgba(255,255,255,0.05),
+                        0 5px 10px rgba(0,0,0,0.4);
+            border-bottom: 1px solid #654321;
+            position: relative;
+            z-index: 2;
+        }
+        .shelf-board-floor {
+            background: linear-gradient(to bottom, #3E2723, #5D4037);
+            height: 10px;
+            border-radius: 2px;
+            margin-top: 5px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        /* ΒΙΒΛΙΟ - ΑΦΑΙΡΕΣΗ ΤΗΣ ΔΕΞΙΑΣ ΡΑΧΗΣ (ΠΛΗΡΟΦΟΡΙΕΣ) */
+        .book {
+    display: flex; /* Αλλάξτε το layout */
+    align-items: flex-end; /* Βαλτε τα στοιχεία στο κάτω μέρος */
+        }
+        
+        /* ΜΟΝΟ Η ΑΡΙΣΤΕΡΗ ΡΑΧΗ ΜΕΝΕΙ */
+        .book-spine {
+            position: relative; /* Αλλαγή από absolute */
+    bottom: auto;
+        }
+        
+        /* ΑΡΙΣΤΕΡΗ ΡΑΧΗ */
+        .book-spine {
+            height: 200px;
+            width: 35px;
+            border-radius: 4px 0 0 4px;
+            left: 0;
+            box-shadow: inset 3px 0 5px rgba(0,0,0,0.3),
+                        5px 5px 15px rgba(0,0,0,0.5);
+            border-right: 1px solid rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            font-weight: bold;
+            overflow: visible;
+            z-index: 3;
+        }
+        
+        .spine-text-rotated {
+            transform: rotate(-90deg);
+            transform-origin: center;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 200px;
+            height: 35px;
+            position: absolute;
+            text-align: center;
+            background: inherit;
+            border-radius: 4px;
+            padding: 0 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        
+        .book-title {
+            font-size: 0.85rem;
+            line-height: 1.1;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-bottom: 3px;
+            margin-bottom: 3px;
+            border-bottom: 1px dashed rgba(255,255,255,0.4);
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        
+        .book-author {
+            font-size: 0.7rem;
+            opacity: 0.9;
+            font-style: italic;
+            letter-spacing: 0.3px;
+        }
+        
+        /* ΣΩΜΑ ΒΙΒΛΙΟΥ - ΤΩΡΑ ΠΙΟ ΠΛΑΤΥ ΧΩΡΙΣ ΤΗ ΔΕΞΙΑ ΡΑΧΗ */
+        .book-body {
+            height: 200px;
+            width: 170px; /* ΠΕΡΙΣΣΟΤΕΡΟ ΠΛΑΤΟΣ ΤΩΡΑ ΠΟΥ ΔΕΝ ΥΠΑΡΧΕΙ Η ΔΕΞΙΑ ΡΑΧΗ */
+            background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+            left: 35px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 5px 5px 20px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            color: #333;
+            font-size: 0.8rem;
+            padding: 15px 10px;
+            text-align: center;
+            line-height: 1.4;
+            z-index: 2;
+            overflow: hidden;
+            border-left: 2px solid #ddd;
+            position: relative;
+        }
+        
+        .book-description {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .book-category {
+            font-size: 0.7rem;
+            color: #8B4513;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #ccc;
+        }
+        
+        .book-short-desc {
+            font-size: 0.75rem;
+            line-height: 1.3;
+            margin-bottom: 10px;
+            color: #444;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 70px;
+            padding-right: 3px;
+        }
+        
+        .book-short-desc::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        .book-short-desc::-webkit-scrollbar-thumb {
+            background: #8B4513;
+            border-radius: 2px;
+        }
+        
+        .book-details {
+            font-size: 0.7rem;
+            color: #666;
+            border-top: 1px dashed #ccc;
+            padding-top: 8px;
+            margin-top: 5px;
+        }
+        
+        .book-pages {
+            display: inline-block;
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            margin-top: 5px;
+        }
+        
+        /* ΝΕΟ CSS ΓΙΑ ΤΑ ΕΞΩΦΥΛΛΑ */
+        .book-cover-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+        
+        .book-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .book-cover-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 8px 5px;
+            font-size: 0.7rem;
+        }
+        
+        .book-cover-title {
+            font-weight: bold;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .book-cover-author {
+            font-style: italic;
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .book:hover .book-cover-img {
+            transform: scale(1.05);
+        }
+        
+        /* HOVER EFFECTS - ΑΠΛΟΥΣΤΕΥΜΕΝΑ ΧΩΡΙΣ ΤΟ book-cover */
+        .book:hover {
+            transform: translateY(-15px) scale(1.05);
+            z-index: 50 !important;
+        }
+        
+        .book:hover .book-spine {
+            z-index: 51;
+            box-shadow: inset 3px 0 5px rgba(0,0,0,0.4),
+                        8px 8px 20px rgba(0,0,0,0.6);
+        }
+        
+        .book:hover .book-body {
+            box-shadow: 8px 8px 25px rgba(0,0,0,0.5);
+            transform: translateX(5px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* ΚΛΑΣΗ ΓΙΑ ΕΠΙΛΕΓΜΕΝΟ ΒΙΒΛΙΟ */
+        .book.selected {
+            transform: translateY(-15px) scale(1.05);
+            z-index: 100 !important;
+            opacity: 1 !important;
+        }
+        
+        .book.selected .book-spine {
+            z-index: 101;
+            box-shadow: inset 3px 0 5px rgba(0,0,0,0.4),
+                        8px 8px 20px rgba(0,0,0,0.6);
+        }
+        
+        .book.selected .book-body {
+            box-shadow: 8px 8px 25px rgba(0,0,0,0.5);
+            transform: translateX(5px);
+        }
+        
+        /* ΣΚΟΤΕΙΝΙΑΣΜΑ ΤΗΣ ΒΙΒΛΙΟΘΗΚΗΣ */
+        .library-viewport.has-selected .book:not(.selected) {
+            opacity: 0.4;
+            filter: blur(1px);
+        }
+        
+        /* ΧΡΩΜΑΤΑ ΡΑΧΩΝ */
+        .book-spine.color-1 { background: linear-gradient(to right, #2C3E50, #34495E); }
+        .book-spine.color-2 { background: linear-gradient(to right, #27AE60, #2ECC71); }
+        .book-spine.color-3 { background: linear-gradient(to right, #2980B9, #3498DB); }
+        .book-spine.color-4 { background: linear-gradient(to right, #8E44AD, #9B59B6); }
+        .book-spine.color-5 { background: linear-gradient(to right, #D35400, #E67E22); }
+        .book-spine.color-6 { background: linear-gradient(to right, #C0392B, #E74C3C); }
+
+        /* ΚΟΥΜΠΙΑ ΛΗΨΗΣ & ΑΝΑΖΗΤΗΣΗΣ - ΒΕΛΤΙΩΜΕΝΑ ΧΡΩΜΑΤΑ */
+        .book-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            color: #FFFFFF !important; /* ΒΕΒΑΙΑ ΛΕΥΚΟ ΧΡΩΜΑ ΚΕΙΜΕΝΟΥ */
+        }
+        
+        .download-btn {
+            background: linear-gradient(to right, #27AE60, #2ECC71);
+            border: 1px solid #229954;
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+        }
+        
+        .download-btn:hover {
+            background: linear-gradient(to right, #229954, #27AE60);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(39, 174, 96, 0.4);
+        }
+        
+        .search-btn {
+            background: linear-gradient(to right, #8B4513, #A0522D);
+            border: 1px solid #D2691E;
+            box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
+            color: #FFFFFF !important; /* ΒΕΒΑΙΑ ΛΕΥΚΟ */
+        }
+        
+        .search-btn:hover {
+            background: linear-gradient(to right, #A0522D, #8B4513);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(139, 69, 19, 0.4);
+        }
+        
+        .no-download {
+            background: linear-gradient(to right, #7F8C8D, #95A5A6);
+            border: 1px solid #616A6B;
+            box-shadow: 0 4px 8px rgba(127, 140, 141, 0.3);
+            cursor: not-allowed;
+            color: #FFFFFF !important; /* ΒΕΒΑΙΑ ΛΕΥΚΟ */
+        }
+        
+        .no-download:hover {
+            transform: none;
+            box-shadow: 0 4px 8px rgba(127, 140, 141, 0.3);
+        }
+
+        /* ΒΕΛΑΚΙΑ, ΚΟΥΚΚΙΔΕΣ */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(139, 69, 19, 0.85);
+            color: #f0e6d2;
+            border: 2px solid #D2691E;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 200;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-arrow:hover {
+            background: #8B4513;
+            border-color: #f0e6d2;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+        }
+        
+        .nav-arrow.left { left: 15px; }
+        .nav-arrow.right { right: 15px; }
+        
+        /* ΚΟΥΚΚΙΔΕΣ */
+        .shelf-indicators {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .indicator {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #8B4513;
+            border-radius: 50%;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #D2691E;
+        }
+        
+        .indicator.active {
+            background: #f0e6d2;
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(240, 230, 210, 0.8);
+        }
+        
+        /* ΟΡΙΑΚΗ ΓΡΑΜΜΗ ΒΑΣΗΣ */
+        .books-row-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(210, 105, 30, 0.5);
+            z-index: 1;
+        }
+        
+       /* FIX: Remove left positioning from book bodies */
+.book-body {
+    left: 0 !important;
+    position: relative !important;
+    margin-left: -1px !important;
+}
+
+.book-spine {
+    position: relative !important;
+    left: 0 !important;
+}
+
+.book {
+    display: flex !important;
+    align-items: flex-end !important;
+    gap: 0 !important;
+} /* ΠΛΑΙΣΙΟ ΕΠΙΛΕΓΜΕΝΟΥ ΒΙΒΛΙΟΥ */
+        #selectedBookInfo {
+            text-align: center;
+            margin-top: 40px;
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid #3a3a5d;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #selectedBookInfo h3 {
+            color: #f0e6d2;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #8B4513;
+            padding-bottom: 10px;
+        }
+        
+        .book-full-info {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border-left: 4px solid #8B4513;
+        }
+        
+        .book-full-info p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .book-full-info strong {
+            color: #f0e6d2;
+            margin-right: 5px;
+        }
+        
+        .download-format {
+            display: inline-block;
+            background: #27AE60;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            margin-left: 5px;
+            font-weight: normal;
+        }
+        
+        @media (max-width: 1100px) {
+            .books-row { gap: 25px; }
+            .book { width: 130px; height: 190px; }
+            .book-spine { width: 32px; }
+            .book-spine,
+            .book-body { height: 180px; }
+            .book-body { width: 150px; left: 32px; }
+            .books-row-container { min-height: 210px; }
+            .spine-text-rotated { height: 32px; width: 180px; }
+            .book-cover-overlay { font-size: 0.65rem; padding: 5px; }
+        }
+        
+        @media (max-width: 768px) {
+            .books-row { gap: 20px; }
+            .book { width: 110px; height: 170px; }
+            .book-spine { width: 28px; }
+            .book-spine,
+            .book-body { height: 160px; }
+            .book-body { width: 130px; left: 28px; padding: 10px 5px; }
+            .nav-arrow { width: 50px; height: 50px; font-size: 1.5rem; }
+            .books-row-container { min-height: 190px; }
+            .book-short-desc { font-size: 0.7rem; max-height: 60px; }
+            .spine-text-rotated { height: 28px; width: 160px; }
+            .book-title { font-size: 0.8rem; }
+            .book-cover-overlay { font-size: 0.6rem; padding: 4px; }
+        }
+        
+        @media (max-width: 576px) {
+            .books-row { gap: 15px; }
+            .book { width: 90px; height: 150px; }
+            .book-spine { width: 24px; }
+            .book-spine,
+            .book-body { height: 140px; }
+            .book-body { width: 110px; left: 24px; padding: 8px 4px; }
+            .container { padding: 25px 15px; }
+            h1 { font-size: 2.2rem; }
+            .books-row-container { min-height: 170px; }
+            .book-category { font-size: 0.6rem; }
+            .book-short-desc { font-size: 0.65rem; max-height: 50px; }
+            .spine-text-rotated { height: 24px; width: 140px; }
+            .book-title { font-size: 0.75rem; }
+            .book-cover-overlay { font-size: 0.55rem; padding: 3px; }
+        }
+   /* ΥΠΕΡ DEBUG - ΔΕΝ ΜΠΟΡΕΙ ΝΑ ΚΡΥΦΤΕΙ */
+@media (min-width: 769px) {
+    .book-info {
+        /* Ανακατασκευή από το μηδέν */
+        all: initial !important;
+        
+        /* Επιβολή ορατότητας */
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        z-index: 999999 !important;
+        
+        /* Βασικά styles */
+        background: white !important;
+        color: black !important;
+        padding: 30px !important;
+        border: 5px solid red !important;
+        font-size: 20px !important;
+        font-family: Arial !important;
+        width: 80% !important;
+        max-width: 800px !important;
+        height: auto !important;
+    }
+    
+    .book-info * {
+        color: black !important;
+        background: transparent !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+} 
+.books-row {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: flex-end !important;
+    flex-wrap: nowrap !important;
+}</style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-book"></i> Βιβλιοθήκη - Δωρεάν Λήψη</h1>
+        <p class="subtitle">Κλασικά ελληνικά βιβλία με άμεση δωρεάν λήψη</p>
+
+        <div class="library-viewport" id="libraryViewport">
+            <button class="nav-arrow left" id="prevShelf"><i class="fas fa-chevron-left"></i></button>
+            <div class="shelves-track" id="shelvesTrack">
+                <!-- ΤΑ ΡΑΦΙΑ ΘΑ ΔΗΜΙΟΥΡΓΗΘΟΥΝ ΑΠΟ ΤΟ JAVASCRIPT -->
+            </div>
+            <button class="nav-arrow right" id="nextShelf"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <!-- ΟΙ ΚΟΥΚΚΙΔΕΣ ΘΑ ΔΗΜΙΟΥΡΓΗΘΟΥΝ ΑΥΤΟΜΑΤΑ -->
+        <div class="shelf-indicators" id="shelfIndicators"></div>
+
+        <!-- ΠΛΑΙΣΙΟ ΕΠΙΛΕΓΜΕΝΟΥ ΒΙΒΛΙΟΥ -->
+        <div id="selectedBookInfo" style="display: none;">
+            <h3><i class="fas fa-info-circle"></i> Πλήρης Πληροφόρηση Βιβλίου</h3>
+            <div class="book-full-info">
+                <p><strong>Τίτλος:</strong> <span id="bookName">-</span></p>
+                <p><strong>Συγγραφέας:</strong> <span id="bookAuthor">-</span></p>
+                <p><strong>Κατηγορία:</strong> <span id="bookCategory">-</span></p>
+                <p><strong>Έτος Έκδοσης:</strong> <span id="bookYear">-</span></p>
+                <p><strong>Μορφές Λήψης:</strong> <span id="downloadFormats">-</span></p>
+                <p><strong>Περιγραφή:</strong></p>
+                <p id="bookDescription">-</p>
+            </div>
+            <div class="book-actions" id="bookActions">
+                <!-- Τα κουμπιά θα δημιουργηθούν δυναμικά -->
+            </div>
+<!-- Στο container, κάπου: -->
+<div class="keyboard-info" style="
+    text-align: center;
+    margin-top: 20px;
+    color: #b8b8b8;
+    font-size: 0.9rem;
+">
+    <i class="fas fa-info-circle"></i> 
+    Τα βελάκια ← → για πλοήγηση, ESC για αποεπιλογή
+
+        </div>
+    </div>
+
+    
+</div>
+  <script>
+        // ΒΑΣΙΚΑ ΔΕΔΟΜΕΝΑ ΒΙΒΛΙΩΝ ΜΕ ΣΥΝΔΕΣΜΟΥΣ ΛΗΨΗΣ ΚΑΙ ΕΞΩΦΥΛΛΑ
+        const booksData = [
+            // ΡΑΦΙ 1: ΚΛΑΣΙΚΑ ΕΛΛΗΝΙΚΑ - ΜΕ ΕΞΩΦΥΛΛΑ
+            [
+                { 
+                    title: "Τα Εργα και Ημέρες", 
+                    author: "Ησίοδος",
+                    category: "Κλασική Λογοτεχνία",
+                    year: "700 π.Χ.",
+                    pages: "120",
+                    description: "Το επικό ποίημα του Ησιόδου που περιγράφει τη γεωργική ζωή και προσφέρει ηθικές διδασκαλίες.",
+                    shortDesc: "Επικό ποίημα με γεωργικές και ηθικές διδασκαλίες.",
+                    color: "color-1",
+                    coverUrl: "https://logxi.com/wp-content/uploads/2025/02/book-arxell-erga-hmerai.jpg",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/348", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/348.epub.noimages", icon: "fas fa-book-open" },
+                        { format: "TXT", url: "https://www.gutenberg.org/ebooks/348.txt.utf-8", icon: "fas fa-file-alt" }
+                    ]
+                },
+                { 
+                    title: "Οδύσσεια", 
+                    author: "Όμηρος",
+                    category: "Επικό Ποίημα",
+                    year: "800 π.Χ.",
+                    pages: "540",
+                    description: "Το δεύτερο μεγάλο επικό ποίημα του Ομήρου που αφηγείται τις περιπέτειες του Οδυσσέα.",
+                    shortDesc: "Οι περιπέτειες του Οδυσσέα στην επιστροφή από την Τροία.",
+                    color: "color-2",
+                    coverUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Odyssey-cropped.jpg/800px-Odyssey-cropped.jpg",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/1727", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/1727.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                },
+                { 
+                    title: "Ιλιάδα", 
+                    author: "Όμηρος",
+                    category: "Επικό Ποίημα",
+                    year: "800 π.Χ.",
+                    pages: "580",
+                    description: "Το πρώτο και πιο γνωστό επικό ποίημα του Ομήρου για τον Τρωικό πόλεμο.",
+                    shortDesc: "Ο Τρωικός πόλεμος και ο θυμός του Αχιλλέα.",
+                    color: "color-3",
+                    coverUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/The_Ambrosian_Iliad.jpg/800px-The_Ambrosian_Iliad.jpg",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/2199", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/2199.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                },
+                { 
+                    title: "Απομνημονεύματα", 
+                    author: "Ξενοφών",
+                    category: "Ιστορία/Φιλοσοφία",
+                    year: "370 π.Χ.",
+                    pages: "240",
+                    description: "Οι αναμνήσεις του Ξενοφώντα για τον Σωκράτη και τις διδασκαλίες του.",
+                    shortDesc: "Αναμνήσεις για τον Σωκράτη και τη φιλοσοφία του.",
+                    color: "color-4",
+                    coverUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Xenophon.jpg/800px-Xenophon.jpg",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/1177", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/1177.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                },
+                { 
+                    title: "Πολιτεία", 
+                    author: "Πλάτων",
+                    category: "Φιλοσοφία",
+                    year: "380 π.Χ.",
+                    pages: "420",
+                    description: "Το σημαντικότερο έργο του Πλάτωνα για τη δικαιοσύνη και την ιδανική πολιτεία.",
+                    shortDesc: "Η ιδανική πολιτεία και η φιλοσοφία της δικαιοσύνης.",
+                    color: "color-5",
+                    coverUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Raffaello_Scuola_di_Atene.jpg/800px-Raffaello_Scuola_di_Atene.jpg",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/1497", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/1497.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                },
+                { 
+                    title: "Ηθικά Νικομάχεια", 
+                    author: "Αριστοτέλης",
+                    category: "Φιλοσοφία",
+                    year: "350 π.Χ.",
+                    pages: "380",
+                    description: "Το κύριο ηθικό έργο του Αριστοτέλη για την ευδαιμονία και τις αρετές.",
+                    shortDesc: "Η ηθική φιλοσοφία και η αναζήτηση της ευδαιμονίας.",
+                    color: "color-6",
+                    // Χωρίς εξώφυλλο - θα εμφανιστεί η περιγραφή
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/8438", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/8438.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                }
+            ],
+            // ΡΑΦΙ 2: ΝΕΟΕΛΛΗΝΙΚΗ ΛΟΓΟΤΕΧΝΙΑ
+            [
+                { 
+                    title: "Ο Μυστικός Λάκκος", 
+                    author: "Αλέξανδρος Παπαδιαμάντης",
+                    category: "Λογοτεχνία",
+                    year: "1903",
+                    pages: "180",
+                    description: "Συλλογή διηγημάτων του Παπαδιαμάντη με έμφαση στην προβληματική της ελληνικής κοινωνίας.",
+                    shortDesc: "Διηγήματα για την ελληνική κοινωνία και την ανθρώπινη φύση.",
+                    color: "color-2",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://anemi.lib.uoc.gr/metadata/9/c/3/metadata-158-0000075.tkl", icon: "fas fa-file-pdf" }
+                    ]
+                },
+                { 
+                    title: "Η Φόνισσα", 
+                    author: "Αλέξανδρος Παπαδιαμάντης",
+                    category: "Λογοτεχνία",
+                    year: "1903",
+                    pages: "160",
+                    description: "Το περίφημο διήγημα του Παπαδιαμάντη για την Κερασιά και τα ήθη της επαρχίας.",
+                    shortDesc: "Κλασικό διήγημα για τα ήθη της ελληνικής επαρχίας.",
+                    color: "color-4",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/51826", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/51826.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                },
+                { 
+                    title: "Το Ταξίδι μου", 
+                    author: "Ιωάννης Ψυχάρης",
+                    category: "Αυτοβιογραφικό",
+                    year: "1888",
+                    pages: "320",
+                    description: "Το επαναστατικό έργο του Ψυχάρη που έθεσε τις βάσεις της δημοτικής γλώσσας.",
+                    shortDesc: "Επαναστατικό έργο για τη δημοτική γλώσσα.",
+                    color: "color-1",
+                    downloadLinks: []
+                },
+                { 
+                    title: "Ζησιμόπουλος", 
+                    author: "Γεώργιος Βιζυηνός",
+                    category: "Λογοτεχνία",
+                    year: "1895",
+                    pages: "140",
+                    description: "Διήγημα του Βιζυηνού που αναδεικνύει τα ψυχολογικά βάθη των προσώπων του.",
+                    shortDesc: "Ψυχολογικό διήγημα με βαθιά ανθρωπιστική προσέγγιση.",
+                    color: "color-3",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://anemi.lib.uoc.gr/metadata/9/1/b/metadata-158-0000030.tkl", icon: "fas fa-file-pdf" }
+                    ]
+                },
+                { 
+                    title: "Το Νούμερο 31328", 
+                    author: "Ιlias Venezis",
+                    category: "Αυτοβιογραφικό",
+                    year: "1931",
+                    pages: "280",
+                    description: "Το αυτοβιογραφικό έργο του Βενέζη για την εμπειρία του στη Μικρασιατική Καταστροφή.",
+                    shortDesc: "Αυτοβιογραφικό για τη Μικρασιατική Καταστροφή.",
+                    color: "color-5",
+                    downloadLinks: []
+                },
+                { 
+                    title: "Λουκάς Λάρας", 
+                    author: "Δημήτρης Βικέλας",
+                    category: "Ιστορικό Μυθιστόρημα",
+                    year: "1879",
+                    pages: "350",
+                    description: "Το πρώτο ιστορικό μυθιστόρημα της νεοελληνικής λογοτεχνίας για την Επανάσταση του 1821.",
+                    shortDesc: "Ιστορικό μυθιστόρημα για την Επανάσταση του 1821.",
+                    color: "color-6",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/51827", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/51827.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                }
+            ],
+            // ΡΑΦΙ 3: ΕΠΙΣΤΗΜΗ & ΦΙΛΟΣΟΦΙΑ
+            [
+                { 
+                    title: "Περί Ουρανού", 
+                    author: "Αριστοτέλης",
+                    category: "Φυσική Επιστήμη",
+                    year: "350 π.Χ.",
+                    pages: "280",
+                    description: "Το αστρονομικό έργο του Αριστοτέλη για τη δομή του σύμπαντος και τους ουράνιους φαινομένους.",
+                    shortDesc: "Αστρονομικό έργο για τη δομή του σύμπαντος.",
+                    color: "color-1",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/8442", icon: "fas fa-file-pdf" }
+                    ]
+                },
+                { 
+                    title: "Περί Ψυχής", 
+                    author: "Αριστοτέλης",
+                    category: "Φιλοσοφία/Ψυχολογία",
+                    year: "350 π.Χ.",
+                    pages: "220",
+                    description: "Το ψυχολογικό έργο του Αριστοτέλη για τη φύση της ψυχής και τις λειτουργίες της.",
+                    shortDesc: "Ψυχολογικό έργο για τη φύση της ψυχής.",
+                    color: "color-3",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/8418", icon: "fas fa-file-pdf" }
+                    ]
+                },
+                { 
+                    title: "Γεωμετρικά Στοιχεία", 
+                    author: "Ευκλείδης",
+                    category: "Μαθηματικά",
+                    year: "300 π.Χ.",
+                    pages: "520",
+                    description: "Το θεμελιώδες έργο της γεωμετρίας που επηρέασε τα μαθηματικά για 23 αιώνες.",
+                    shortDesc: "Θεμελιώδες έργο της γεωμετρίας.",
+                    color: "color-5",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/21076", icon: "fas fa-file-pdf" }
+                    ]
+                },
+                { 
+                    title: "Περί της των Ζώων Μορφής", 
+                    author: "Αριστοτέλης",
+                    category: "Βιολογία",
+                    year: "340 π.Χ.",
+                    pages: "380",
+                    description: "Το ζωολογικό έργο του Αριστοτέλη με λεπτομερείς παρατηρήσεις στοιχειώδους βιολογίας.",
+                    shortDesc: "Ζωολογικό έργο με λεπτομερείς παρατηρήσεις.",
+                    color: "color-2",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/8435", icon: "fas fa-file-pdf" }
+                    ]
+                },
+                { 
+                    title: "Ιστορίαι", 
+                    author: "Ηρόδοτος",
+                    category: "Ιστορία",
+                    year: "440 π.Χ.",
+                    pages: "680",
+                    description: "Το πρώτο ιστορικό έργο της Δύσης με την ιστορία των Περσικών πολέμων.",
+                    shortDesc: "Πρώτο ιστορικό έργο της Δύσης.",
+                    color: "color-4",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/2707", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/2707.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                },
+                { 
+                    title: "Πολιτικά", 
+                    author: "Αριστοτέλης",
+                    category: "Πολιτική Επιστήμη",
+                    year: "350 π.Χ.",
+                    pages: "320",
+                    description: "Το πολιτικό έργο του Αριστοτέλη για τις μορφές διακυβέρνησης και την ιδανική πολιτεία.",
+                    shortDesc: "Πολιτικό έργο για τις μορφές διακυβέρνησης.",
+                    color: "color-6",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/6762", icon: "fas fa-file-pdf" }
+                    ]
+                }
+            ],
+            // ΡΑΦΙ 4: ΘΕΑΤΡΟ ΚΑΙ ΠΟΙΗΣΗ
+            [
+                { 
+                    title: "Οι Πέρσες", 
+                    author: "Αισχύλος",
+                    category: "Τραγωδία",
+                    year: "472 π.Χ.",
+                    pages: "90",
+                    description: "Η παλαιότερη σωζόμενη τραγωδία του Αισχύλου για τη ναυμαχία της Σαλαμίνας.",
+                    shortDesc: "Παλαιότερη σωζόμενη τραγωδία για τη Σαλαμίνα.",
+                    color: "color-1",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/8146", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/8146.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                },
+                { 
+                    title: "Οιπους Τύραννος", 
+                    author: "Σοφοκλής",
+                    category: "Τραγωδία",
+                    year: "429 π.Χ.",
+                    pages: "110",
+                    description: "Η κλασική τραγωδία του Σοφοκλή για τον Οιδίποδα και το μοιραίο του πεπρωμένο.",
+                    shortDesc: "Κλασική τραγωδία για τον Οιδίποδα.",
+                    color: "color-3",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/31", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/31.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                },
+                { 
+                    title: "Μήδεια", 
+                    author: "Ευριπίδης",
+                    category: "Τραγωδία",
+                    year: "431 π.Χ.",
+                    pages: "100",
+                    description: "Η τραγωδία του Ευριπίδη για την Μήδεια και την τραγική της εκδίκηση.",
+                    shortDesc: "Τραγωδία για την Μήδεια και την εκδίκησή της.",
+                    color: "color-5",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/3543", icon: "fas fa-file-pdf" },
+                        { format: "EPUB", url: "https://www.gutenberg.org/ebooks/3543.epub.noimages", icon: "fas fa-book-open" }
+                    ]
+                },
+                { 
+                    title: "Βάτραχοι", 
+                    author: "Αριστοφάνης",
+                    category: "Κωμωδία",
+                    year: "405 π.Χ.",
+                    pages: "120",
+                    description: "Η κωμωδία του Αριστοφάνη για τον Διόνυσο και την αποστολή του στον Άδη.",
+                    shortDesc: "Κωμωδία για τον Διόνυσο στον Άδη.",
+                    color: "color-2",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/7998", icon: "fas fa-file-pdf" }
+                    ]
+                },
+                { 
+                    title: "Ειρήνη", 
+                    author: "Αριστοφάνης",
+                    category: "Κωμωδία",
+                    year: "421 π.Χ.",
+                    pages: "130",
+                    description: "Κωμωδία του Αριστοφάνη που εκφράζει την επιθυμία για ειρήνη κατά τον Πελοποννησιακό πόλεμο.",
+                    shortDesc: "Κωμωδία για την επιθυμία της ειρήνης.",
+                    color: "color-4",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/7997", icon: "fas fa-file-pdf" }
+                    ]
+                },
+                { 
+                    title: "Όρνιθες", 
+                    author: "Αριστοφάνης",
+                    category: "Κωμωδία",
+                    year: "414 π.Χ.",
+                    pages: "140",
+                    description: "Κωμωδία του Αριστοφάνη για την ίδρυση μιας πόλης στον αέρα από τα πουλιά.",
+                    shortDesc: "Κωμωδία για την πόλη των πουλιών στον αέρα.",
+                    color: "color-6",
+                    downloadLinks: [
+                        { format: "PDF", url: "https://www.gutenberg.org/ebooks/7999", icon: "fas fa-file-pdf" }
+                    ]
+                }
+            ]
+        ];
+
+        // ΣΥΣΤΗΜΑ ΔΙΑΧΕΙΡΙΣΗΣ
+        const track = document.getElementById('shelvesTrack');
+        const indicatorsContainer = document.getElementById('shelfIndicators');
+        const libraryViewport = document.getElementById('libraryViewport');
+        const bookInfoDiv = document.getElementById('selectedBookInfo');
+        const bookNameSpan = document.getElementById('bookName');
+        const bookAuthorSpan = document.getElementById('bookAuthor');
+        const bookCategorySpan = document.getElementById('bookCategory');
+        const bookYearSpan = document.getElementById('bookYear');
+        const bookDescriptionSpan = document.getElementById('bookDescription');
+        const downloadFormatsSpan = document.getElementById('downloadFormats');
+        const bookActionsDiv = document.getElementById('bookActions');
+        
+        let currentShelf = 0;
+        let selectedBook = null;
+        const totalShelves = booksData.length;
+
+        // ΔΗΜΙΟΥΡΓΙΑ ΡΑΦΙΩΝ
+        function createShelves() {
+            track.innerHTML = '';
+            
+            booksData.forEach((shelfBooks, shelfIndex) => {
+                const shelfUnit = document.createElement('div');
+                shelfUnit.className = 'shelf-unit';
+                
+                let shelfHTML = `
+                    <div class="shelf-board-top"></div>
+                    <div class="books-row-container">
+                        <div class="books-row">
+                `;
+                
+                // Πρώτα 3 βιβλία
+                for (let i = 0; i < 3; i++) {
+                    const book = shelfBooks[i];
+                    shelfHTML += createBookHTML(book, shelfIndex * 6 + i);
+                }
+                
+                shelfHTML += `
+                        </div>
+                    </div>
+                    <div class="shelf-board-middle"></div>
+                    <div class="books-row-container">
+                        <div class="books-row">
+                `;
+                
+                // Επόμενα 3 βιβλία
+                for (let i = 3; i < 6; i++) {
+                    const book = shelfBooks[i];
+                    shelfHTML += createBookHTML(book, shelfIndex * 6 + i);
+                }
+                
+                shelfHTML += `
+                        </div>
+                    </div>
+                    <div class="shelf-board-bottom"></div>
+                    <div class="shelf-board-floor"></div>
+                `;
+                
+                shelfUnit.innerHTML = shelfHTML;
+                track.appendChild(shelfUnit);
+            });
+        }
+
+        // ΔΗΜΙΟΥΡΓΙΑ HTML ΓΙΑ ΕΝΑ ΒΙΒΛΙΟ - ΜΕ ΕΞΩΦΥΛΛΟ
+        function createBookHTML(book, index) {
+            const hasCover = book.coverUrl && book.coverUrl.trim() !== '';
+            
+            return `
+                <div class="book" data-index="${index}" 
+                     data-category="${book.category}" 
+                     data-year="${book.year}" 
+                     data-pages="${book.pages}" 
+                     data-desc="${book.description}"
+                     data-cover="${book.coverUrl || ''}"
+                     data-downloads='${JSON.stringify(book.downloadLinks)}'>
+                    <div class="book-spine ${book.color}">
+                        <div class="spine-text-rotated">
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-author">${book.author}</div>
+                        </div>
+                    </div>
+                    <div class="book-body">
+                        ${hasCover ? `
+                            <div class="book-cover-container">
+                                <img src="${book.coverUrl}" 
+                                     alt="${book.title} - ${book.author}"
+                                     class="book-cover-img"
+                                     onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div class=\\'book-description\\'><div class=\\'book-category\\'>${book.category.split(' ')[0]}</div><div class=\\'book-short-desc\\'>${book.shortDesc}</div><div class=\\'book-details\\'><div class=\\'book-pages\\'>${book.pages} σελ.</div></div></div>';">
+                                <div class="book-cover-overlay">
+                                    <div class="book-cover-title">${book.title}</div>
+                                    <div class="book-cover-author">${book.author}</div>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="book-description">
+                                <div class="book-category">${book.category.split(' ')[0]}</div>
+                                <div class="book-short-desc">${book.shortDesc}</div>
+                                <div class="book-details">
+                                    <div class="book-pages">${book.pages} σελ.</div>
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ΔΗΜΙΟΥΡΓΙΑ ΚΟΥΚΚΙΔΩΝ
+        function createIndicators() {
+            indicatorsContainer.innerHTML = '';
+            
+            for (let i = 0; i < totalShelves; i++) {
+                const indicator = document.createElement('span');
+                indicator.className = `indicator ${i === 0 ? 'active' : ''}`;
+                indicator.setAttribute('data-index', i);
+                indicator.addEventListener('click', function() {
+                    goToShelf(parseInt(this.getAttribute('data-index')));
+                });
+                indicatorsContainer.appendChild(indicator);
+            }
+        }
+
+        // ΜΕΤΑΒΙΒΑΣΗ ΣΕ ΡΑΦΙ
+        function goToShelf(shelfIndex) {
+            if (shelfIndex >= totalShelves) currentShelf = 0;
+            else if (shelfIndex < 0) currentShelf = totalShelves - 1;
+            else currentShelf = shelfIndex;
+            
+            track.style.transform = `translateX(${-currentShelf * 100}%)`;
+            
+            document.querySelectorAll('.indicator').forEach((ind, idx) => {
+                ind.classList.toggle('active', idx === currentShelf);
+            });
+        }
+
+        // RESET ΕΠΙΛΟΓΗΣ
+        function resetSelection() {
+            document.querySelectorAll('.book').forEach(book => {
+                book.classList.remove('selected');
+                book.style.opacity = '1';
+                book.style.filter = 'none';
+                book.style.transform = '';
+            });
+            
+            bookInfoDiv.style.display = 'none';
+            libraryViewport.classList.remove('has-selected');
+            selectedBook = null;
+        }
+
+        // ΔΗΜΙΟΥΡΓΙΑ ΚΟΥΜΠΙΩΝ ΛΗΨΗΣ
+        function createDownloadButtons(downloadLinks, title, author) {
+            bookActionsDiv.innerHTML = '';
+            
+            if (downloadLinks && downloadLinks.length > 0) {
+                // Κουμπιά για κάθε μορφή λήψης
+                downloadLinks.forEach(link => {
+                    const button = document.createElement('a');
+                    button.className = 'action-btn download-btn';
+                    button.href = link.url;
+                    button.target = '_blank';
+                    button.innerHTML = `
+                        <i class="${link.icon}"></i>
+                        Κατέβασμα ${link.format}
+                    `;
+                    bookActionsDiv.appendChild(button);
+                });
+                
+                // Μορφές λήψης για εμφάνιση
+                const formats = downloadLinks.map(link => link.format).join(', ');
+                downloadFormatsSpan.innerHTML = `<span class="download-format">${formats}</span>`;
+            } else {
+                // Αν δεν υπάρχουν links
+                const noDownloadBtn = document.createElement('button');
+                noDownloadBtn.className = 'action-btn no-download';
+                noDownloadBtn.disabled = true;
+                noDownloadBtn.innerHTML = `
+                    <i class="fas fa-ban"></i>
+                    Δεν υπάρχει διαθέσιμη λήψη
+                `;
+                bookActionsDiv.appendChild(noDownloadBtn);
+                downloadFormatsSpan.textContent = "Δεν υπάρχουν διαθέσιμες μορφές";
+            }
+            
+            // Κουμπί αναζήτησης Google - ΤΩΡΑ ΜΕ ΛΕΥΚΟ ΚΕΙΜΕΝΟ
+            const searchBtn = document.createElement('a');
+            searchBtn.className = 'action-btn search-btn';
+            searchBtn.href = `https://www.google.com/search?q=${encodeURIComponent(`${title} ${author}`)}`;
+            searchBtn.target = '_blank';
+            searchBtn.innerHTML = `
+                <i class="fas fa-search"></i>
+                Αναζήτηση Online
+            `;
+            bookActionsDiv.appendChild(searchBtn);
+        }
+
+        // ΕΠΙΛΟΓΗ ΒΙΒΛΙΟΥ
+        function selectBook(book) {
+            if (selectedBook === book) {
+                resetSelection();
+                return;
+            }
+            
+            resetSelection();
+            selectedBook = book;
+            
+            const title = book.querySelector('.book-title').textContent;
+            const author = book.querySelector('.book-author').textContent;
+            const category = book.getAttribute('data-category');
+            const year = book.getAttribute('data-year');
+            const description = book.getAttribute('data-desc');
+            const downloadLinks = JSON.parse(book.getAttribute('data-downloads'));
+            
+            bookNameSpan.textContent = title;
+            bookAuthorSpan.textContent = author;
+            bookCategorySpan.textContent = category;
+            bookYearSpan.textContent = year;
+            bookDescriptionSpan.textContent = description;
+            
+            // Δημιουργία κουμπιών λήψης
+            createDownloadButtons(downloadLinks, title, author);
+            
+            bookInfoDiv.style.display = 'block';
+            book.classList.add('selected');
+            libraryViewport.classList.add('has-selected');
+        }
+
+        // ΕΚΚΙΝΗΣΗ ΣΥΣΤΗΜΑΤΟΣ
+        function initializeLibrary() {
+            createShelves();
+            createIndicators();
+            
+            // Event listeners για τα βιβλία
+            document.addEventListener('click', function(e) {
+                const book = e.target.closest('.book');
+                if (book) {
+                    selectBook(book);
+                }
+            });
+            
+            // Event listeners για τα βελάκια
+            document.getElementById('prevShelf').addEventListener('click', () => goToShelf(currentShelf - 1));
+            document.getElementById('nextShelf').addEventListener('click', () => goToShelf(currentShelf + 1));
+            
+                       // Κλικ έξω από βιβλίο για reset
+            libraryViewport.addEventListener('click', function(e) {
+                if (!e.target.closest('.book') && 
+                    !e.target.closest('.nav-arrow') && 
+                    !e.target.closest('.shelves-track')) {
+                    resetSelection();
+                }
+            });
+            
+            // ========== ΒΕΛΤΙΩΣΗ: KEYBOARD NAVIGATION ==========
+            function handleKeyboardNavigation(e) {
+                // Παίρνουμε το ενεργό element
+                const activeElement = document.activeElement;
+                
+                // Αν είναι σε input ή textarea, μην κάνουμε τίποτα
+                if (activeElement.tagName === 'INPUT' || 
+                    activeElement.tagName === 'TEXTAREA' ||
+                    activeElement.isContentEditable) {
+                    return;
+                }
+                
+                switch(e.key) {
+                    case 'ArrowLeft':
+                    case 'ArrowUp':
+                        goToShelf(currentShelf - 1);
+                        e.preventDefault();
+                        break;
+                        
+                    case 'ArrowRight':
+                    case 'ArrowDown':
+                        goToShelf(currentShelf + 1);
+                        e.preventDefault();
+                        break;
+                        
+                    case 'Escape':
+                        resetSelection();
+                        break;
+                        
+                    case 'Home':
+                        goToShelf(0);
+                        e.preventDefault();
+                        break;
+                        
+                    case 'End':
+                        goToShelf(totalShelves - 1);
+                        e.preventDefault();
+                        break;
+                        
+                    case ' ':
+                    case 'Spacebar':
+                        // Space για pause/resume auto-rotate
+                        if (autoRotate) {
+                            clearInterval(autoRotate);
+                            autoRotate = null;
+                        } else {
+                            autoRotate = setInterval(() => {
+                                goToShelf(currentShelf + 1);
+                            }, 10000);
+                        }
+                        e.preventDefault();
+                        break;
+                }
+            }
+            
+            document.addEventListener('keydown', handleKeyboardNavigation);
+            // ========== ΤΕΛΟΣ ΒΕΛΤΙΩΣΗΣ ==========
+            
+            // Auto-rotate
+            let autoRotate = setInterval(() => {
+                goToShelf(currentShelf + 1);
+            }, 10000);
+            
+            libraryViewport.addEventListener('mouseenter', () => {
+                if (autoRotate) {
+                    clearInterval(autoRotate);
+                    autoRotate = null;
+                }
+            });
+            
+            libraryViewport.addEventListener('mouseleave', () => {
+                if (!autoRotate) {
+                    autoRotate = setInterval(() => {
+                        goToShelf(currentShelf + 1);
+                    }, 10000);
+                }
+            });
+            
+            // Βεβαίωση ότι το track υπάρχει (debug)
+            console.log('Library initialized successfully. Shelves:', totalShelves);
+        }
+
+        // ΕΚΚΙΝΗΣΗ
+        initializeLibrary();
+    </script>
+</body>
+</html>
+
